@@ -23,10 +23,3 @@ Built with **Python (Flask)** and integrated with **Google's Gemini API**, Twini
 * **AI Engine:** Google Gemini API (`v1beta`)
 
 ---
-
-### 🚀 Quick Start
-
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/twinity-search.git](https://github.com/YOUR_USERNAME/twinity-search.git)
-   cd twinity-search
