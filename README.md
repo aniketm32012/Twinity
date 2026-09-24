@@ -23,3 +23,5 @@ Built with **Python (Flask)** and integrated with **Google's Gemini API**, Twini
 * **AI Engine:** Google Gemini API (`v1beta`)
 
 ---
+
+> Note: Designed & tested specifically for **Windows** local hosting. **macOS/Linux** environments may require elevated `sudo` permissions or port adjustments due to OS-level socket policies.
