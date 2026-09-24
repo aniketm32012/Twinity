@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twinity Search - AI Powered Web Engine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --accent-purple: #7c3aed;
+      --accent-blue: #3b82f6;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-link: #60a5fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navigation Bar */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--card-border);
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      background: rgba(124, 58, 237, 0.2);
+      border: 1px solid var(--accent-purple);
+      border-radius: 12px;
+      color: #c084fc;
+    }
+
+    .search-bar-container {
+      flex: 1;
+      max-width: 600px;
+      margin: 0 2rem;
+      position: relative;
+    }
+
+    .search-input-wrap {
+      display: flex;
+      align-items: center;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 0.4rem 0.8rem 0.4rem 1.2rem;
+      transition: all 0.2s ease;
+    }
+
+    .search-input-wrap:focus-within {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .search-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 0.95rem;
+    }
+
+    .search-btn {
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border: none;
+      color: #fff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 18px;
+      cursor: pointer;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .api-key-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    /* Main Grid Layout */
+    .container {
+      max-width: 1300px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 2rem;
+      width: 100%;
+    }
+
+    @media (max-width: 968px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Results Column */
+    .results-count {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .result-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .result-card:hover {
+      border-color: rgba(96, 165, 250, 0.4);
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .result-source {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.05);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .result-title {
+      font-size: 1.1rem;
+      color: var(--text-link);
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 0.3rem;
+    }
+
+    .result-title:hover {
+      text-decoration: underline;
+    }
+
+    .result-url {
+      font-size: 0.8rem;
+      color: #10b981;
+      word-break: break-all;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-snippet {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* AI Synthesis Sidebar */
+    .ai-card {
+      background: var(--card-bg);
+      border: 1px solid var(--accent-purple);
+      border-radius: 16px;
+      padding: 1.25rem;
+      position: sticky;
+      top: 90px;
+      box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+    }
+
+    .ai-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .ai-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .ai-badge {
+      font-size: 0.65rem;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      padding: 0.2rem 0.5rem;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .ai-content {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .ai-content p {
+      margin-bottom: 0.75rem;
+    }
+
+    .ai-content ul {
+      margin-left: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .loading-spinner {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .modal h3 { margin-bottom: 1rem; }
+    .modal input {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .modal-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="#" class="brand">
+      <div class="brand-logo">T</div>
+      Twinity <span class="badge">AI Search</span>
+    </a>
+
+    <div class="search-bar-container">
+      <form id="search-form" class="search-input-wrap">
+        <input type="text" id="search-input" class="search-input" placeholder="Search the web or type a URL..." required>
+        <button type="submit" class="search-btn">Search ✨</button>
+      </form>
+    </div>
+
+    <button class="api-key-btn" onclick="openKeyModal()">🔑 API Key</button>
+  </header>
+
+  <main class="container">
+    <section>
+      <div id="results-info" class="results-count">Enter a query to start searching.</div>
+      <div id="web-results-container"></div>
+    </section>
+
+    <aside>
+      <div class="ai-card">
+        <div class="ai-header">
+          <div class="ai-title">
+            <span>✨</span> Nova AI Synthesis
+          </div>
+          <span class="ai-badge">GEMINI 3 FLASH</span>
+        </div>
+        <div id="ai-output" class="ai-content">
+          Submit a search query to generate a synthesized answer from Nova AI.
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Modal for API Key -->
+  <div id="key-modal" class="modal-overlay">
+    <div class="modal">
+      <h3>Set Gemini API Key</h3>
+      <p style="font-size:0.85rem; color: var(--text-muted); margin-bottom:1rem;">Your key is stored locally in your browser.</p>
+      <input type="password" id="api-key-input" placeholder="AIzaSy...">
+      <div class="modal-btns">
+        <button class="api-key-btn" onclick="closeKeyModal()">Cancel</button>
+        <button class="search-btn" onclick="saveKey()">Save Key</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const OFFICIAL_BRANDS = {
+      "youtube": { name: "YouTube", url: "https://www.youtube.com", desc: "Enjoy video streaming, music, channels, and original content on the world's largest video platform." },
+      "google": { name: "Google", url: "https://www.google.com", desc: "Search the world's information, including webpages, images, videos and more." },
+      "github": { name: "GitHub", url: "https://github.com", desc: "GitHub is where over 100 million developers shape the future of software, together." },
+      "wikipedia": { name: "Wikipedia", url: "https://www.wikipedia.org", desc: "Wikipedia is a free online encyclopedia, created and edited by volunteers around the world." },
+      "reddit": { name: "Reddit", url: "https://www.reddit.com", desc: "Dive into anything on Reddit. Find communities that interest you, and join discussions." },
+      "twitter": { name: "X / Twitter", url: "https://x.com", desc: "From breaking news and entertainment to sports and politics, get the full story." },
+      "x": { name: "X / Twitter", url: "https://x.com", desc: "From breaking news and entertainment to sports and politics, get the full story." },
+      "instagram": { name: "Instagram", url: "https://www.instagram.com", desc: "A simple, fun & creative way to capture, edit & share photos, videos & messages with friends." },
+      "facebook": { name: "Facebook", url: "https://www.facebook.com", desc: "Connect with friends, family and people who share the same interests as you." },
+      "amazon": { name: "Amazon", url: "https://www.amazon.com", desc: "Free delivery on millions of items. Get the best of Shopping and Entertainment." }
+    };
+
+    let currentSearchResults = [];
+
+    document.getElementById('search-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const query = document.getElementById('search-input').value.trim();
+      if (query) fetchSearchData(query);
+    });
+
+    async function fetchSearchData(query) {
+      const container = document.getElementById('web-results-container');
+      const info = document.getElementById('results-info');
+      container.innerHTML = `<div class="loading-spinner">Searching the web for "${query}"...</div>`;
+
+      let results = [];
+      const lowerQ = query.toLowerCase().trim();
+
+      // 1. Direct Official Brand Match
+      for (const [key, brand] of Object.entries(OFFICIAL_BRANDS)) {
+        if (key === lowerQ || lowerQ.startsWith(key)) {
+          results.push({
+            title: `${brand.name} - Official Site`,
+            url: brand.url,
+            snippet: brand.desc,
+            source: 'Official Site'
+          });
+          break;
+        }
+      }
+
+      // 2. Fetch Wikipedia Search API
+      try {
+        const wikiRes = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*`);
+        const wikiData = await wikiRes.json();
+        if (wikiData.query && wikiData.query.search) {
+          wikiData.query.search.forEach(item => {
+            const cleanSnippet = item.snippet.replace(/<\/?[^>]+(>|$)/g, "");
+            results.push({
+              title: item.title,
+              url: `https://en.wikipedia.org/wiki/${encodeURIComponent(item.title.replace(/ /g, '_'))}`,
+              snippet: cleanSnippet + '...',
+              source: 'Wikipedia'
+            });
+          });
+        }
+      } catch (err) {
+        console.error("Wikipedia API Error:", err);
+      }
+
+      // 3. DuckDuckGo Instant Answer API
+      try {
+        const ddgRes = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`);
+        const ddgData = await ddgRes.json();
+
+        if (ddgData.AbstractText) {
+          results.unshift({
+            title: ddgData.Heading || query,
+            url: ddgData.AbstractURL || 'https://duckduckgo.com',
+            snippet: ddgData.AbstractText,
+            source: 'Instant Answer'
+          });
+        }
+
+        if (ddgData.RelatedTopics) {
+          ddgData.RelatedTopics.forEach(topic => {
+            if (topic.Text && topic.FirstURL) {
+              results.push({
+                title: topic.Text.split(' - ')[0] || topic.Text,
+                url: topic.FirstURL,
+                snippet: topic.Text,
+                source: 'Web Result'
+              });
+            }
+          });
+        }
+      } catch (err) {
+        console.error("DuckDuckGo API Error:", err);
+      }
+
+      currentSearchResults = results;
+      info.innerText = `Search results for "${query}" (${results.length} results found)`;
+      renderWebResultsList(results);
+      synthesizeWithNova(query, results);
+    }
+
+    function renderWebResultsList(results) {
+      const container = document.getElementById('web-results-container');
+      if (!results || results.length === 0) {
+        container.innerHTML = `<p style="color: var(--text-muted)">No organic web results found.</p>`;
+        return;
+      }
+
+      container.innerHTML = results.map(r => `
+        <div class="result-card">
+          <div class="result-header">
+            <span class="result-source">${r.source}</span>
+          </div>
+          <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="result-title">${r.title}</a>
+          <div class="result-url">${r.url}</div>
+          <div class="result-snippet">${r.snippet}</div>
+        </div>
+      `).join('');
+    }
+
+    async function synthesizeWithNova(query, searchResults) {
+      const output = document.getElementById('ai-output');
+      const apiKey = localStorage.getItem('gemini_api_key');
+
+      if (!apiKey) {
+        output.innerHTML = `<em>Please set your Gemini API key in the top bar to enable Nova AI Synthesis.</em>`;
+        return;
+      }
+
+      output.innerHTML = `<div class="loading-spinner">Nova is analyzing web results...</div>`;
+
+      const contextText = searchResults.map(r => `- Title: ${r.title}\n  Snippet: ${r.snippet}`).join('\n');
+      const prompt = `User Query: "${query}"\n\nSearch Results Context:\n${contextText}\n\nSynthesize a clear, direct summary answering the query using the context provided. Use bullet points if helpful.`;
+
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+        });
+
+        const data = await res.json();
+        if (data.error) {
+          output.innerHTML = `<span style="color:#ef4444;">API Error: ${data.error.message}</span>`;
+          return;
+        }
+
+        const answer = data.candidates?.[0]?.content?.parts?.map(p => p.text).join('\n') || "Could not synthesize response.";
+        output.innerHTML = answer.replace(/\n/g, '<br>');
+      } catch (err) {
+        output.innerHTML = `<span style="color:#ef4444;">Failed to connect to Nova AI service.</span>`;
+      }
+    }
+
+    /* Modal Logic */
+    function openKeyModal() {
+      document.getElementById('api-key-input').value = localStorage.getItem('gemini_api_key') || '';
+      document.getElementById('key-modal').style.display = 'flex';
+    }
+    function closeKeyModal() { document.getElementById('key-modal').style.display = 'none'; }
+    function saveKey() {
+      const key = document.getElementById('api-key-input').value.trim();
+      if (key) localStorage.setItem('gemini_api_key', key);
+      else localStorage.removeItem('gemini_api_key');
+      closeKeyModal();
+    }
+  </script>
+</body>
+</html>
